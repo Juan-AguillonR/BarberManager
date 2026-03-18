@@ -1,0 +1,36 @@
+.panel-wrap {
+  width: 100%;
+}
+
+.panel-title {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+  color: #111827;
+}
+
+.panel-block {
+  background: #f3f4f6;
+  border: 1px solid #cfd4da;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-block h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.45rem;
+  color: #111827;
+}
+
+.turno-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+@media (max-width: 991.98px) {
+  .turno-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -11,6 +11,41 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
+## Backend + MySQL Setup
+
+This project now includes an Express API in `server/` to connect the React app with MySQL.
+
+1. Copy `.env.example` to `.env` and update your MySQL credentials.
+2. Make sure MySQL is running and the database is named `barberia`.
+3. Install dependencies:
+
+```bash
+npm install
+```
+
+4. Run frontend + backend together:
+
+```bash
+npm run dev
+```
+
+5. API base URL in development:
+
+```text
+http://localhost:4000
+```
+
+Auth endpoints used by frontend:
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+
+Data endpoints used by frontend:
+
+- `GET /api/tipos-pago`
+- `GET /api/turnos`
+- `GET /api/servicios`
+
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 

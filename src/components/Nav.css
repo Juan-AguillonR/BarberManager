@@ -1,0 +1,20 @@
+.app-navbar {
+  border: 1px solid #4a5568;
+}
+
+.navbar-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.navbar-user-label {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-user-actions {
+    margin-top: 0.75rem;
+  }
+}

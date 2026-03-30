@@ -1,0 +1,20 @@
+.dashboard-card {
+  background: #f3f4f6;
+  border: 1px solid #cfd4da;
+  border-radius: 8px;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.1);
+  padding: 1rem;
+}
+
+.dashboard-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+  color: #111827;
+}
+
+.dashboard-card-icon {
+  display: inline-flex;
+}

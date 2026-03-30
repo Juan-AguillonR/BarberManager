@@ -1,0 +1,18 @@
+.app-nav {
+  margin-bottom: 0;
+}
+
+.nav-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+}
+
+.nav-usuario {
+  color: #ccc;
+  font-size: 0.9rem;
+}

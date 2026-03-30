@@ -1,0 +1,6 @@
+[2026-03-30T00:40:13.584Z] usuario=kiretsu01 accion=REGISTRO detalle=rol=cliente
+[2026-03-30T00:40:21.764Z] usuario=kiretsu01 accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-03-30T00:42:08.751Z] usuario=kiretsu accion=LOGIN_FALLIDO detalle=Usuario no encontrado
+[2026-03-30T00:42:59.824Z] usuario=kiretsu accion=LOGIN_FALLIDO detalle=Usuario no encontrado
+[2026-03-30T00:43:12.357Z] usuario=kiretsu01 accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-03-30T01:49:31.990Z] usuario=kiretsu01 accion=LOGIN_EXITOSO detalle=rol=admin

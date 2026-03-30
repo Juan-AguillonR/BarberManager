@@ -11,8 +11,8 @@ const app = express();
 const apiPort = Number(process.env.API_PORT || 4000);
 const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
-// ─── RNF6: Rate limiting en memoria 
-const loginAttempts = {};  // { usuario: { count, blockedUntil } }
+// RNF6: control de intentos fallidos en memoria
+const loginAttempts = {};
 const BLOCK_AFTER = 5;
 const BLOCK_MINUTES = 15;
 const CAPTCHA_AFTER = 3;
@@ -35,8 +35,7 @@ function registerFailedAttempt(usuario) {
   const info = getAttemptInfo(usuario);
   info.count += 1;
   if (info.count >= BLOCK_AFTER) {
-    const blockedUntil = new Date(Date.now() + BLOCK_MINUTES * 60 * 1000);
-    info.blockedUntil = blockedUntil.toISOString();
+    info.blockedUntil = new Date(Date.now() + BLOCK_MINUTES * 60 * 1000).toISOString();
   }
 }
 
@@ -44,7 +43,7 @@ function clearAttempts(usuario) {
   loginAttempts[usuario] = { count: 0, blockedUntil: null };
 }
 
-// ─── RNF4: Logs de auditoría 
+// RNF4: escribir log en archivo y en DB
 const LOG_DIR = path.join(__dirname, 'logs');
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR);
 
@@ -53,21 +52,18 @@ function writeLog(usuario, accion, detalle = '') {
   const linea = `[${fecha}] usuario=${usuario} accion=${accion} detalle=${detalle}\n`;
   const archivo = path.join(LOG_DIR, `auditoria_${fecha.slice(0, 10)}.log`);
   fs.appendFileSync(archivo, linea);
-
-  // También guardar en DB
   pool.query(
     'INSERT IGNORE INTO logs_auditoria (usuario, accion, detalle, fecha) VALUES (?, ?, ?, NOW())',
     [usuario, accion, detalle]
   ).catch(() => {});
 }
 
-// ─── RNF1: Validación de contraseña 
+// RNF1: validar que la contraseña cumpla requisitos mínimos
 function validarPassword(password) {
   if (!password || password.length < 5) return 'La contraseña debe tener al menos 5 caracteres.';
   return null;
 }
 
-// ─── Middleware 
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) { callback(null, true); return; }
@@ -76,7 +72,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ─── RNF2: Middleware de verificación de rol 
+// RNF2: verificar que el usuario tenga el rol requerido
 function requireRole(...roles) {
   return (req, res, next) => {
     const rolHeader = req.headers['x-user-rol'];
@@ -87,17 +83,28 @@ function requireRole(...roles) {
   };
 }
 
-// ─── Tablas iniciales 
 async function ensureTables() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+      usu_id INT AUTO_INCREMENT PRIMARY KEY,
+      usu_primer_nombre VARCHAR(100) NOT NULL,
+      usu_primer_apellido VARCHAR(100) NOT NULL DEFAULT ''
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS usuarios_app (
       id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
       usuario VARCHAR(100) NOT NULL UNIQUE,
       password_hash VARCHAR(255) NOT NULL,
       rol ENUM('cliente','barbero','admin') NOT NULL DEFAULT 'cliente',
-      creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      usu_id INT NULL,
+      creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (usu_id) REFERENCES usuarios(usu_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  await pool.query(`ALTER TABLE usuarios_app ADD COLUMN IF NOT EXISTS usu_id INT NULL`).catch(() => {});
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS logs_auditoria (
@@ -108,12 +115,69 @@ async function ensureTables() {
       fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tipos_servicios (
+      tips_id INT AUTO_INCREMENT PRIMARY KEY,
+      tips_nombre_servicio VARCHAR(100) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS servicios (
+      ser_id INT AUTO_INCREMENT PRIMARY KEY,
+      tips_id INT,
+      ser_precio DECIMAL(10,2),
+      tur_id INT NULL,
+      FOREIGN KEY (tips_id) REFERENCES tipos_servicios(tips_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS turnos (
+      tur_id INT AUTO_INCREMENT PRIMARY KEY,
+      usu_id INT NULL,
+      tur_fecha DATE NOT NULL,
+      tur_hora TIME NOT NULL,
+      FOREIGN KEY (usu_id) REFERENCES usuarios(usu_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tipos_pagos (
+      tipp_id INT AUTO_INCREMENT PRIMARY KEY,
+      tipp_tipo_pago VARCHAR(50) NOT NULL,
+      tipp_descripcion VARCHAR(200)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS pagos (
+      pag_id INT AUTO_INCREMENT PRIMARY KEY,
+      ser_id INT NULL,
+      tipp_id INT NULL,
+      pag_monto DECIMAL(10,2),
+      pag_fecha DATE,
+      FOREIGN KEY (ser_id) REFERENCES servicios(ser_id),
+      FOREIGN KEY (tipp_id) REFERENCES tipos_pagos(tipp_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
+  // Insertar tipos de pago base si no existen
+  const [existing] = await pool.query('SELECT COUNT(*) as total FROM tipos_pagos');
+  if (existing[0].total === 0) {
+    await pool.query(`
+      INSERT INTO tipos_pagos (tipp_tipo_pago, tipp_descripcion) VALUES
+        ('Efectivo', 'Pago en efectivo en el local'),
+        ('Tarjeta', 'Tarjeta débito o crédito'),
+        ('Transferencia', 'Transferencia bancaria')
+    `);
+  }
 }
 
-// ─── Health 
 app.get('/api/health', (_req, res) => res.json({ ok: true, message: 'API activa' }));
 
-// ─── RNF1 + RNF6: Registro 
+// RNF1 + RNF3: registro con validación de password y hash seguro
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { usuario, password, rol = 'cliente' } = req.body;
@@ -121,12 +185,11 @@ app.post('/api/auth/register', async (req, res) => {
     if (!usuario || !password)
       return res.status(400).json({ message: 'Usuario y contraseña son requeridos.' });
 
-    // RNF1: validar password
     const errorPassword = validarPassword(password);
     if (errorPassword) return res.status(400).json({ message: errorPassword });
 
-    // RNF2: solo admin puede crear barberos/admins
-    if ((rol === 'barbero' || rol === 'admin')) {
+    // RNF2: solo admin puede crear barberos o admins
+    if (rol === 'barbero' || rol === 'admin') {
       const rolSolicitante = req.headers['x-user-rol'];
       if (rolSolicitante !== 'admin')
         return res.status(403).json({ message: 'Solo un admin puede asignar ese rol.' });
@@ -136,51 +199,65 @@ app.post('/api/auth/register', async (req, res) => {
     if (existing.length > 0)
       return res.status(409).json({ message: 'El usuario ya existe.' });
 
-    // RNF3: hash seguro
+    // RNF3: hash seguro con bcrypt
     const passwordHash = await bcrypt.hash(password, 12);
+
+    // Crear entrada en tabla usuarios para poder asociar turnos
+    const [usuResult] = await pool.query(
+      'INSERT INTO usuarios (usu_primer_nombre, usu_primer_apellido) VALUES (?, ?)',
+      [usuario, '']
+    );
+
     const [result] = await pool.query(
-      'INSERT INTO usuarios_app (usuario, password_hash, rol) VALUES (?, ?, ?)',
-      [usuario, passwordHash, rol]
+      'INSERT INTO usuarios_app (usuario, password_hash, rol, usu_id) VALUES (?, ?, ?, ?)',
+      [usuario, passwordHash, rol, usuResult.insertId]
     );
 
     writeLog(usuario, 'REGISTRO', `rol=${rol}`);
-    return res.status(201).json({ message: 'Usuario registrado correctamente.', user: { id: result.insertId, usuario, rol } });
+    return res.status(201).json({
+      message: 'Usuario registrado correctamente.',
+      user: { id: result.insertId, usuario, rol, usu_id: usuResult.insertId }
+    });
   } catch (error) {
     return res.status(500).json({ message: 'Error al registrar usuario.', detail: error.message });
   }
 });
 
-// ─── RNF1 + RNF6: Login 
+// RNF1 + RNF6: login con bloqueo por intentos y captcha
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { usuario, password } = req.body;
+    const { usuario, password, captchaValid } = req.body;
 
     if (!usuario || !password)
       return res.status(400).json({ message: 'Usuario y contraseña son requeridos.' });
 
-    // RNF6: bloqueo por intentos fallidos
     if (isBlocked(usuario)) {
       writeLog(usuario, 'LOGIN_BLOQUEADO', 'Demasiados intentos fallidos');
-      return res.status(429).json({ message: `Cuenta bloqueada temporalmente (${BLOCK_MINUTES} min). Intenta más tarde.`, blocked: true });
+      return res.status(429).json({
+        message: `Cuenta bloqueada por ${BLOCK_MINUTES} minutos. Intenta más tarde.`,
+        blocked: true
+      });
     }
 
     const info = getAttemptInfo(usuario);
     const needsCaptcha = info.count >= CAPTCHA_AFTER;
 
-    // RNF6: verificar captcha si aplica
-    if (needsCaptcha && !req.body.captchaValid) {
+    if (needsCaptcha && !captchaValid) {
       return res.status(400).json({ message: 'Debes completar el CAPTCHA.', needsCaptcha: true });
     }
 
     const [rows] = await pool.query(
-      'SELECT id, usuario, password_hash, rol FROM usuarios_app WHERE usuario = ? LIMIT 1',
+      'SELECT id, usuario, password_hash, rol, usu_id FROM usuarios_app WHERE usuario = ? LIMIT 1',
       [usuario]
     );
 
     if (rows.length === 0) {
       registerFailedAttempt(usuario);
       writeLog(usuario, 'LOGIN_FALLIDO', 'Usuario no encontrado');
-      return res.status(401).json({ message: 'Credenciales inválidas.', intentosRestantes: BLOCK_AFTER - getAttemptInfo(usuario).count });
+      return res.status(401).json({
+        message: 'Credenciales inválidas.',
+        intentosRestantes: BLOCK_AFTER - getAttemptInfo(usuario).count
+      });
     }
 
     const user = rows[0];
@@ -193,19 +270,22 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({
         message: `Credenciales inválidas. Te quedan ${restantes} intento(s).`,
         intentosRestantes: restantes,
-        needsCaptcha: getAttemptInfo(usuario).count >= CAPTCHA_AFTER,
+        needsCaptcha: getAttemptInfo(usuario).count >= CAPTCHA_AFTER
       });
     }
 
     clearAttempts(usuario);
     writeLog(usuario, 'LOGIN_EXITOSO', `rol=${user.rol}`);
-    return res.json({ message: 'Login correcto.', user: { id: user.id, usuario: user.usuario, rol: user.rol } });
+    return res.json({
+      message: 'Login correcto.',
+      user: { id: user.id, usuario: user.usuario, rol: user.rol, usu_id: user.usu_id }
+    });
   } catch (error) {
     return res.status(500).json({ message: 'Error al iniciar sesión.', detail: error.message });
   }
 });
 
-// ─── RNF4: Logs (solo admin)
+// RNF4: ver logs, solo admin
 app.get('/api/logs', requireRole('admin'), async (_req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM logs_auditoria ORDER BY fecha DESC LIMIT 200');
@@ -214,7 +294,6 @@ app.get('/api/logs', requireRole('admin'), async (_req, res) => {
     return res.status(500).json({ message: 'Error al obtener logs.', detail: error.message });
   }
 });
-
 
 app.get('/api/tipos-pago', async (_req, res) => {
   try {
@@ -228,7 +307,6 @@ app.get('/api/tipos-pago', async (_req, res) => {
     return res.status(500).json({ message: 'Error al listar tipos de pago.', detail: error.message });
   }
 });
-
 
 app.get('/api/servicios', async (_req, res) => {
   try {
@@ -253,6 +331,33 @@ app.get('/api/servicios', async (_req, res) => {
   }
 });
 
+// RNF2: solo admin puede crear servicios
+app.post('/api/servicios', requireRole('admin'), async (req, res) => {
+  try {
+    const { tipo, precio } = req.body;
+    if (!tipo || precio === undefined)
+      return res.status(400).json({ message: 'Tipo y precio son requeridos.' });
+
+    const tiposServiciosTable = await findExistingTable(['tipos_servicios', 'barberia_tipos_servicios']);
+    const serviciosTable = await findExistingTable(['servicios', 'barberia_servicios']);
+    if (!tiposServiciosTable || !serviciosTable)
+      return res.status(404).json({ message: 'No se encontraron las tablas de servicios.' });
+
+    const [tipoResult] = await pool.query(
+      `INSERT INTO ${tiposServiciosTable} (tips_nombre_servicio) VALUES (?)`, [tipo]
+    );
+    const [serResult] = await pool.query(
+      `INSERT INTO ${serviciosTable} (tips_id, ser_precio) VALUES (?, ?)`,
+      [tipoResult.insertId, precio]
+    );
+
+    const usuario = req.headers['x-user-usuario'] || 'admin';
+    writeLog(usuario, 'SERVICIO_CREADO', `tipo=${tipo} precio=${precio}`);
+    return res.status(201).json({ message: 'Servicio creado correctamente.', id: serResult.insertId });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al crear servicio.', detail: error.message });
+  }
+});
 
 app.get('/api/turnos', async (_req, res) => {
   try {
@@ -278,7 +383,6 @@ app.get('/api/turnos', async (_req, res) => {
   }
 });
 
-
 app.get('/api/usuarios', async (_req, res) => {
   try {
     const usuariosTable = await findExistingTable(['usuarios', 'barberia_usuarios']);
@@ -292,7 +396,7 @@ app.get('/api/usuarios', async (_req, res) => {
   }
 });
 
-
+// RF8: validar que no se duplique fecha+hora y que la fecha no sea pasada
 app.post('/api/turnos', async (req, res) => {
   try {
     const turnosTable = await findExistingTable(['turnos', 'barberia_turnos']);
@@ -301,21 +405,27 @@ app.post('/api/turnos', async (req, res) => {
     const { fecha, hora, usuarioId } = req.body;
     if (!fecha || !hora) return res.status(400).json({ message: 'Fecha y hora son requeridas.' });
 
-    const columns = await getTableColumns(turnosTable);
-    if (!columns.includes('tur_fecha') || !columns.includes('tur_hora'))
-      return res.status(500).json({ message: 'La estructura de turnos no es compatible.' });
-
-    let resolvedUserId = usuarioId ?? null;
-    if (columns.includes('usu_id') && !resolvedUserId) {
-      const usuariosTable = await findExistingTable(['usuarios', 'barberia_usuarios']);
-      if (usuariosTable) {
-        const [users] = await pool.query(`SELECT usu_id FROM ${usuariosTable} ORDER BY usu_id ASC LIMIT 1`);
-        if (users.length > 0) resolvedUserId = users[0].usu_id;
-      }
+    // RF8: no permitir fechas pasadas
+    const fechaTurno = new Date(`${fecha}T${hora}`);
+    if (fechaTurno < new Date()) {
+      return res.status(400).json({ message: 'No puedes agendar un turno en una fecha pasada.' });
     }
+
+    // RF2: no duplicar horarios
+    const [duplicado] = await pool.query(
+      `SELECT tur_id FROM ${turnosTable} WHERE tur_fecha = ? AND tur_hora = ?`,
+      [fecha, hora]
+    );
+    if (duplicado.length > 0) {
+      return res.status(409).json({ message: 'Ya existe un turno para esa fecha y hora. Elige otro horario.' });
+    }
+
+    const columns = await getTableColumns(turnosTable);
+    let resolvedUserId = usuarioId ?? null;
 
     const insertColumns = ['tur_fecha', 'tur_hora'];
     const insertValues = [fecha, hora];
+
     if (columns.includes('usu_id') && resolvedUserId) {
       insertColumns.push('usu_id');
       insertValues.push(resolvedUserId);
@@ -330,7 +440,10 @@ app.post('/api/turnos', async (req, res) => {
     const usuario = req.headers['x-user-usuario'] || 'desconocido';
     writeLog(usuario, 'TURNO_CREADO', `fecha=${fecha} hora=${hora}`);
 
-    return res.status(201).json({ message: 'Turno registrado correctamente.', turno: { id: result.insertId, fecha, hora, usuarioId: resolvedUserId } });
+    return res.status(201).json({
+      message: 'Turno registrado correctamente.',
+      turno: { id: result.insertId, fecha, hora, usuarioId: resolvedUserId }
+    });
   } catch (error) {
     return res.status(500).json({ message: 'Error al registrar turno.', detail: error.message });
   }
@@ -351,11 +464,14 @@ app.get('/api/pagos', async (_req, res) => {
     const serJoin = serviciosTable ? `LEFT JOIN ${serviciosTable} s ON s.ser_id = p.ser_id` : '';
     const tservJoin = serviciosTable && tiposServiciosTable ? `LEFT JOIN ${tiposServiciosTable} ts ON ts.tips_id = s.tips_id` : '';
     const tippJoin = tiposPagoTable ? `LEFT JOIN ${tiposPagoTable} tp ON tp.tipp_id = p.tipp_id` : '';
-    const servicioSelect = serviciosTable && tiposServiciosTable ? 'ts.tips_nombre_servicio' : serviciosTable ? 'CONCAT("Servicio #", p.ser_id)' : 'NULL';
+    const servicioSelect = serviciosTable && tiposServiciosTable
+      ? 'ts.tips_nombre_servicio'
+      : serviciosTable ? 'CONCAT("Servicio #", p.ser_id)' : 'NULL';
     const metodoSelect = tiposPagoTable ? 'tp.tipp_tipo_pago' : 'NULL';
 
     const [rows] = await pool.query(
-      `SELECT p.pag_id AS id, ${servicioSelect} AS servicio, ${metodoSelect} AS metodo, ${montoSelect} AS monto, ${fechaSelect} AS fecha
+      `SELECT p.pag_id AS id, ${servicioSelect} AS servicio, ${metodoSelect} AS metodo,
+              ${montoSelect} AS monto, ${fechaSelect} AS fecha
        FROM ${pagosTable} p ${serJoin} ${tservJoin} ${tippJoin}
        ORDER BY p.pag_id DESC`
     );
@@ -365,49 +481,58 @@ app.get('/api/pagos', async (_req, res) => {
   }
 });
 
-
-// ─── RNF5: Backup desde UI 
-app.post("/api/backup", requireRole("admin"), async (req, res) => {
-  const { execSync } = require("child_process");
-  const BACKUP_DIR = path.join(__dirname, "backups");
-  if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
-  const fecha = new Date().toISOString().slice(0, 10);
-  const archivo = path.join(BACKUP_DIR, `barberia_backup_${fecha}.sql`);
-  const dbHost = process.env.DB_HOST || "localhost";
-  const dbUser = process.env.DB_USER || "root";
-  const dbPass = process.env.DB_PASSWORD || "";
-  const dbName = process.env.DB_NAME || "barberia";
+// RF turno: guardar pago simulado
+app.post('/api/pagos', async (req, res) => {
   try {
-    const passFlag = dbPass ? `-p${dbPass}` : "";
-    execSync(`mysqldump -h ${dbHost} -u ${dbUser} ${passFlag} ${dbName} > "${archivo}"`);
-    const usuario = req.headers["x-user-usuario"] || "admin";
-    writeLog(usuario, "BACKUP_CREADO", archivo);
-    return res.json({ message: `Backup creado: ${path.basename(archivo)}` });
+    const pagosTable = await findExistingTable(['pagos', 'barberia_pagos']);
+    const tiposPagoTable = await findExistingTable(['tipos_pagos', 'barberia_tipos_pagos']);
+    if (!pagosTable) return res.status(404).json({ message: 'No existe la tabla de pagos.' });
+
+    const { metodoPago, monto, turnoId } = req.body;
+
+    let tippId = null;
+    if (tiposPagoTable && metodoPago) {
+      const [tp] = await pool.query(
+        `SELECT tipp_id FROM ${tiposPagoTable} WHERE tipp_tipo_pago = ? LIMIT 1`, [metodoPago]
+      );
+      if (tp.length > 0) tippId = tp[0].tipp_id;
+    }
+
+    await pool.query(
+      `INSERT INTO ${pagosTable} (tipp_id, pag_monto, pag_fecha) VALUES (?, ?, CURDATE())`,
+      [tippId, monto || 0]
+    );
+
+    const usuario = req.headers['x-user-usuario'] || 'cliente';
+    writeLog(usuario, 'PAGO_REGISTRADO', `metodo=${metodoPago} monto=${monto} turno=${turnoId}`);
+
+    return res.status(201).json({ message: 'Pago registrado correctamente.' });
   } catch (error) {
-    return res.status(500).json({ message: "Error al crear backup. Verifica que mysqldump este en el PATH.", detail: error.message });
+    return res.status(500).json({ message: 'Error al registrar pago.', detail: error.message });
   }
 });
 
-app.post("/api/servicios", requireRole("admin"), async (req, res) => {
+// RNF5: backup desde el panel admin
+app.post('/api/backup', requireRole('admin'), async (req, res) => {
+  const { execSync } = require('child_process');
+  const BACKUP_DIR = path.join(__dirname, 'backups');
+  if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
+
+  const fecha = new Date().toISOString().slice(0, 10);
+  const archivo = path.join(BACKUP_DIR, `barberia_backup_${fecha}.sql`);
+  const dbHost = process.env.DB_HOST || 'localhost';
+  const dbUser = process.env.DB_USER || 'root';
+  const dbPass = process.env.DB_PASSWORD || '';
+  const dbName = process.env.DB_NAME || 'barberia';
+
   try {
-    const { tipo, precio } = req.body;
-    if (!tipo || precio === undefined)
-      return res.status(400).json({ message: "Tipo y precio son requeridos." });
-    const tiposServiciosTable = await findExistingTable(["tipos_servicios", "barberia_tipos_servicios"]);
-    const serviciosTable = await findExistingTable(["servicios", "barberia_servicios"]);
-    if (!tiposServiciosTable || !serviciosTable)
-      return res.status(404).json({ message: "No se encontraron las tablas de servicios." });
-    const [tipoResult] = await pool.query(
-      `INSERT INTO ${tiposServiciosTable} (tips_nombre_servicio) VALUES (?)`, [tipo]
-    );
-    const [serResult] = await pool.query(
-      `INSERT INTO ${serviciosTable} (tips_id, ser_precio) VALUES (?, ?)`, [tipoResult.insertId, precio]
-    );
-    const usuario = req.headers["x-user-usuario"] || "admin";
-    writeLog(usuario, "SERVICIO_CREADO", `tipo=${tipo} precio=${precio}`);
-    return res.status(201).json({ message: "Servicio creado correctamente.", id: serResult.insertId });
+    const passFlag = dbPass ? `-p${dbPass}` : '';
+    execSync(`mysqldump -h ${dbHost} -u ${dbUser} ${passFlag} ${dbName} > "${archivo}"`);
+    const usuario = req.headers['x-user-usuario'] || 'admin';
+    writeLog(usuario, 'BACKUP_CREADO', archivo);
+    return res.json({ message: `Backup creado: ${path.basename(archivo)}` });
   } catch (error) {
-    return res.status(500).json({ message: "Error al crear servicio.", detail: error.message });
+    return res.status(500).json({ message: 'Error al crear backup. Verifica que mysqldump esté en el PATH.', detail: error.message });
   }
 });
 
@@ -421,4 +546,3 @@ ensureTables()
     console.error('No se pudo iniciar API:', error.message);
     process.exit(1);
   });
-

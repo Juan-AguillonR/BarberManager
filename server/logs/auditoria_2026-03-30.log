@@ -4,3 +4,11 @@
 [2026-03-30T00:42:59.824Z] usuario=kiretsu accion=LOGIN_FALLIDO detalle=Usuario no encontrado
 [2026-03-30T00:43:12.357Z] usuario=kiretsu01 accion=LOGIN_EXITOSO detalle=rol=admin
 [2026-03-30T01:49:31.990Z] usuario=kiretsu01 accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-03-30T17:15:30.055Z] usuario=prueba accion=REGISTRO detalle=rol=cliente
+[2026-03-30T17:15:39.126Z] usuario=prueba accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-03-30T17:15:44.151Z] usuario=prueba accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-03-30T17:15:46.302Z] usuario=prueba accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-03-30T17:20:45.001Z] usuario=kiretsu01 accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-03-30T17:49:34.817Z] usuario=kiretsu01 accion=TURNO_CREADO detalle=fecha=2026-03-25 hora=02:53
+[2026-03-30T17:49:46.948Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-03-30T17:50:03.348Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-02 hora=02:55

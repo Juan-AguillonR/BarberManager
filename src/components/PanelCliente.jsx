@@ -37,7 +37,7 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
     try {
       const response = await apiRequest('/api/turnos', {
         method: 'POST',
-        body: JSON.stringify({ fecha, hora }),
+        body: JSON.stringify({ fecha, hora, usuarioId: user?.usu_id ?? null }),
       }, user);
 
       setTurnoCreado({ ...response.turno, fecha, hora, servicio: servicioInfo });
@@ -53,7 +53,11 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
   const handleConfirmarPago = () => {
     if (!metodoPago) return;
     setPagoConfirmado(true);
-    // En producción aquí se haría POST /api/pagos
+    // Guardar pago simulado en DB
+    apiRequest('/api/pagos', {
+      method: 'POST',
+      body: JSON.stringify({ metodoPago, monto: turnoCreado?.servicio?.precio ?? 0, turnoId: turnoCreado?.id }),
+    }, user).catch(() => {});
     setTimeout(() => {
       setShowPagoModal(false);
       setPagoConfirmado(false);

@@ -12,3 +12,5 @@
 [2026-03-30T17:49:34.817Z] usuario=kiretsu01 accion=TURNO_CREADO detalle=fecha=2026-03-25 hora=02:53
 [2026-03-30T17:49:46.948Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_EXITOSO detalle=rol=cliente
 [2026-03-30T17:50:03.348Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-02 hora=02:55
+[2026-03-30T22:30:17.235Z] usuario=admin accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-03-30T22:30:30.015Z] usuario=admin accion=LOGIN_EXITOSO detalle=rol=admin

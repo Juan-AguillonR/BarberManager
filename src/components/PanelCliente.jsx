@@ -21,6 +21,7 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
   const [metodoPago, setMetodoPago] = useState('');
   const [turnoCreado, setTurnoCreado] = useState(null);
   const [pagoConfirmado, setPagoConfirmado] = useState(false);
+  const [resumenPago, setResumenPago] = useState(null);
 
   const servicioInfo = servicios.find((s) => String(s.id) === String(servicioSeleccionado));
 
@@ -50,19 +51,32 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
     }
   };
 
-  const handleConfirmarPago = () => {
+  const handleConfirmarPago = async () => {
     if (!metodoPago) return;
-    setPagoConfirmado(true);
-    // Guardar pago simulado en DB
-    apiRequest('/api/pagos', {
-      method: 'POST',
-      body: JSON.stringify({ metodoPago, monto: turnoCreado?.servicio?.precio ?? 0, turnoId: turnoCreado?.id }),
-    }, user).catch(() => {});
+    try {
+      const response = await apiRequest('/api/pagos', {
+        method: 'POST',
+        body: JSON.stringify({
+          metodoPago,
+          monto: turnoCreado?.servicio?.precio ?? 0,
+          turnoId: turnoCreado?.id,
+          servicioId: turnoCreado?.servicio?.id ?? null,
+          usuarioId: user?.usu_id ?? null,
+        }),
+      }, user);
+      setResumenPago(response?.pago || null);
+      setPagoConfirmado(true);
+    } catch {
+      setStatus({ type: 'danger', message: 'No se pudo registrar el pago. Intenta nuevamente.' });
+      return;
+    }
+
     setTimeout(() => {
       setShowPagoModal(false);
       setPagoConfirmado(false);
       setMetodoPago('');
       setTurnoCreado(null);
+      setResumenPago(null);
       if (onDatosActualizados) onDatosActualizados();
       setStatus({ type: 'success', message: '✅ Turno agendado correctamente. Tu pago quedó registrado.' });
     }, 1500);
@@ -72,6 +86,7 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
     setShowPagoModal(false);
     setTurnoCreado(null);
     setMetodoPago('');
+    setResumenPago(null);
     if (onDatosActualizados) onDatosActualizados();
     setStatus({ type: 'warning', message: '⚠️ Turno agendado. Recuerda pagar el día de tu cita.' });
   };
@@ -188,6 +203,11 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
             <div className="text-center py-3">
               <div style={{ fontSize: '3rem' }}>✅</div>
               <p className="mt-2 fw-bold">¡Pago registrado exitosamente!</p>
+              {resumenPago && (
+                <small className="text-muted d-block">
+                  Monto base: ${resumenPago.montoBase ?? 0} | Descuento: ${resumenPago.descuentoAplicado ?? 0} | Total: ${resumenPago.montoFinal ?? 0}
+                </small>
+              )}
             </div>
           ) : (
             <>

@@ -49,7 +49,7 @@ function InicioPanel({ user }) {
           {user?.rol?.toUpperCase()}
         </Badge>
       </div>
-      <p className="home-saludo">Bienvenido, <strong>{user?.usuario}</strong></p>
+      <p className="home-saludo">Bienvenido, <strong>{user?.nombre || user?.usuario}</strong></p>
 
       <div className="home-grid">
         {modulosVisibles.map((modulo) => {

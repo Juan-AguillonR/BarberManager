@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -19,32 +19,45 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
   const [metodoPago, setMetodoPago] = useState('');
   const [turnoCreado, setTurnoCreado] = useState(null);
   const [pagoConfirmado, setPagoConfirmado] = useState(false);
+  const [descuentoInfo, setDescuentoInfo] = useState({ descuento: 0, totalTurnos: 0 });
 
   const servicioInfo = servicios.find((s) => String(s.id) === String(servicioId));
+
+  // Cargar descuento del usuario al montar
+  useEffect(() => {
+    const cargarDescuento = async () => {
+      if (!user?.usu_id) return;
+      try {
+        const data = await apiRequest(`/api/descuento/${user.usu_id}`, {}, user);
+        setDescuentoInfo(data);
+      } catch { }
+    };
+    cargarDescuento();
+  }, [user, turnos]);
+
+  const precioOriginal = turnoCreado?.servicio?.precio ?? 0;
+  const descuentoPct = descuentoInfo.descuento;
+  const montoDescuento = precioOriginal * descuentoPct / 100;
+  const montoFinal = precioOriginal - montoDescuento;
 
   const handleAgendarSubmit = async (e) => {
     e.preventDefault();
     setStatus({ type: '', message: '' });
 
-    if (!fecha || !hora) {
-      setStatus({ type: 'danger', message: 'Debes seleccionar fecha y hora.' });
-      return;
-    }
-    if (!servicioId) {
-      setStatus({ type: 'danger', message: 'Debes seleccionar un servicio.' });
-      return;
-    }
+    if (!fecha || !hora) { setStatus({ type: 'danger', message: 'Debes seleccionar fecha y hora.' }); return; }
+    if (!servicioId) { setStatus({ type: 'danger', message: 'Debes seleccionar un servicio.' }); return; }
 
     setIsSaving(true);
     try {
       const response = await apiRequest('/api/turnos', {
         method: 'POST',
-        body: JSON.stringify({
-          fecha, hora,
-          usuarioId: user?.usu_id ?? null,
-          servicioId: Number(servicioId),
-        }),
+        body: JSON.stringify({ fecha, hora, usuarioId: user?.usu_id ?? null, servicioId: Number(servicioId) }),
       }, user);
+
+      // Recalcular descuento con el nuevo turno incluido
+      const nuevoTotal = descuentoInfo.totalTurnos + 1;
+      const nuevoDescuento = nuevoTotal >= 3 ? 10 : 0;
+      setDescuentoInfo({ descuento: nuevoDescuento, totalTurnos: nuevoTotal });
 
       setTurnoCreado({ ...response.turno, fecha, hora, servicio: servicioInfo });
       setShowPagoModal(true);
@@ -64,7 +77,8 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
       method: 'POST',
       body: JSON.stringify({
         metodoPago,
-        monto: turnoCreado?.servicio?.precio ?? 0,
+        monto: precioOriginal,
+        descuento: descuentoPct,
         servicioId: turnoCreado?.servicioId ?? null,
       }),
     }, user).catch(() => {});
@@ -90,6 +104,23 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
   return (
     <section className="panel-wrap" aria-label="Panel del cliente">
       <h1 className="panel-title">Mi Panel</h1>
+
+      {/* Indicador de descuento */}
+      {descuentoInfo.totalTurnos > 0 && (
+        <div className="descuento-banner">
+          {descuentoInfo.descuento > 0 ? (
+            <Alert variant="success" className="mb-0">
+              🎉 Tienes <strong>{descuentoInfo.descuento}% de descuento</strong> por tu fidelidad —
+              llevas <strong>{descuentoInfo.totalTurnos} turnos</strong> con nosotros.
+            </Alert>
+          ) : (
+            <Alert variant="info" className="mb-0">
+              📅 Llevas <strong>{descuentoInfo.totalTurnos} turno(s)</strong>. 
+              Con <strong>{3 - descuentoInfo.totalTurnos} más</strong> obtienes 10% de descuento.
+            </Alert>
+          )}
+        </div>
+      )}
 
       <article className="panel-block">
         <h2>Agendar nuevo turno</h2>
@@ -156,9 +187,7 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
       <article className="panel-block">
         <h2>Servicios disponibles</h2>
         <Table striped bordered hover responsive size="sm">
-          <thead>
-            <tr><th>Servicio</th><th>Precio</th></tr>
-          </thead>
+          <thead><tr><th>Servicio</th><th>Precio</th></tr></thead>
           <tbody>
             {servicios.length === 0 ? (
               <tr><td colSpan={2}>No hay servicios registrados.</td></tr>
@@ -190,6 +219,7 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
         </div>
       </article>
 
+      {/* Modal de pago con descuento */}
       <Modal show={showPagoModal} onHide={handleSaltarPago} centered>
         <Modal.Header closeButton>
           <Modal.Title>💳 Confirmar pago</Modal.Title>
@@ -208,7 +238,16 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
                 {turnoCreado?.servicio && (
                   <>
                     <p><strong>Servicio:</strong> {turnoCreado.servicio.tipo}</p>
-                    <p><strong>Precio:</strong> <Badge bg="success">${turnoCreado.servicio.precio}</Badge></p>
+                    <p><strong>Precio original:</strong> ${precioOriginal}</p>
+                    {descuentoPct > 0 && (
+                      <>
+                        <p><strong>Descuento:</strong> <Badge bg="warning" text="dark">{descuentoPct}% por fidelidad</Badge> — ahorra ${montoDescuento.toFixed(2)}</p>
+                        <p><strong>Total a pagar:</strong> <Badge bg="success">${montoFinal.toFixed(2)}</Badge></p>
+                      </>
+                    )}
+                    {descuentoPct === 0 && (
+                      <p><strong>Total a pagar:</strong> <Badge bg="success">${precioOriginal}</Badge></p>
+                    )}
                   </>
                 )}
               </div>

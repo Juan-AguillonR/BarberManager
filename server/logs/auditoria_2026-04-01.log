@@ -9,3 +9,15 @@
 [2026-04-01T01:03:28.788Z] usuario=Kiretsu10 accion=SERVICIO_CREADO detalle=tipo=limpiar a calvazos precio=11111111
 [2026-04-01T01:04:45.294Z] usuario=Kiretsu10 accion=LOGIN_FALLIDO detalle=intentos=1
 [2026-04-01T01:04:47.789Z] usuario=Kiretsu10 accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-04-01T16:18:35.809Z] usuario=Kiretsu10 accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-04-01T16:18:57.279Z] usuario=Kiretsu10 accion=TURNO_CREADO detalle=fecha=2026-04-02 hora=12:26 servicio=1
+[2026-04-01T16:19:16.245Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-04-01T16:19:26.645Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-02 hora=01:21 servicio=1
+[2026-04-01T16:19:29.372Z] usuario=gcortes@uniempresarial.edu.co accion=PAGO_REGISTRADO detalle=monto=2000.00 descuento=false
+[2026-04-01T16:19:53.824Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-01 hora=19:22 servicio=1
+[2026-04-01T16:19:56.597Z] usuario=gcortes@uniempresarial.edu.co accion=PAGO_REGISTRADO detalle=monto=2000.00 descuento=false
+[2026-04-01T16:20:07.670Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-09 hora=13:22 servicio=1
+[2026-04-01T16:20:12.023Z] usuario=gcortes@uniempresarial.edu.co accion=PAGO_REGISTRADO detalle=monto=2000.00 descuento=false
+[2026-04-01T16:20:24.623Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-16 hora=13:22 servicio=1
+[2026-04-01T16:20:26.933Z] usuario=gcortes@uniempresarial.edu.co accion=PAGO_REGISTRADO detalle=monto=2000.00 descuento=false
+[2026-04-01T16:20:46.941Z] usuario=Kiretsu10 accion=LOGIN_EXITOSO detalle=rol=admin

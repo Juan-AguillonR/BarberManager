@@ -167,11 +167,15 @@ async function ensureTables() {
       ser_id INT NULL,
       tipp_id INT NULL,
       pag_monto DECIMAL(10,2),
+      pag_descuento INT DEFAULT 0,
+      pag_monto_final DECIMAL(10,2),
       pag_fecha DATE,
       FOREIGN KEY (ser_id) REFERENCES servicios(ser_id),
       FOREIGN KEY (tipp_id) REFERENCES tipos_pagos(tipp_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+  await pool.query(`ALTER TABLE pagos ADD COLUMN IF NOT EXISTS pag_descuento INT DEFAULT 0`).catch(() => {});
+  await pool.query(`ALTER TABLE pagos ADD COLUMN IF NOT EXISTS pag_monto_final DECIMAL(10,2)`).catch(() => {});
 
   const [existing] = await pool.query('SELECT COUNT(*) as total FROM tipos_pagos');
   if (existing[0].total === 0) {
@@ -480,6 +484,8 @@ app.get('/api/pagos', async (_req, res) => {
 
     const montoSelect = pagosColumns.includes('pag_monto') ? 'p.pag_monto' : 'NULL';
     const fechaSelect = pagosColumns.includes('pag_fecha') ? 'p.pag_fecha' : 'NULL';
+    const descuentoSelect = pagosColumns.includes('pag_descuento') ? 'p.pag_descuento' : '0';
+    const montoFinalSelect = pagosColumns.includes('pag_monto_final') ? 'p.pag_monto_final' : 'NULL';
     const serJoin = serviciosTable ? `LEFT JOIN ${serviciosTable} s ON s.ser_id = p.ser_id` : '';
     const tservJoin = serviciosTable && tiposServiciosTable ? `LEFT JOIN ${tiposServiciosTable} ts ON ts.tips_id = s.tips_id` : '';
     const tippJoin = tiposPagoTable ? `LEFT JOIN ${tiposPagoTable} tp ON tp.tipp_id = p.tipp_id` : '';
@@ -488,7 +494,7 @@ app.get('/api/pagos', async (_req, res) => {
 
     const [rows] = await pool.query(
       `SELECT p.pag_id AS id, ${servicioSelect} AS servicio, ${metodoSelect} AS metodo,
-              ${montoSelect} AS monto, ${fechaSelect} AS fecha
+              ${montoSelect} AS monto, ${descuentoSelect} AS descuento, ${montoFinalSelect} AS monto_final, ${fechaSelect} AS fecha
        FROM ${pagosTable} p ${serJoin} ${tservJoin} ${tippJoin}
        ORDER BY p.pag_id DESC`
     );
@@ -514,9 +520,11 @@ app.post('/api/pagos', async (req, res) => {
       if (tp.length > 0) tippId = tp[0].tipp_id;
     }
 
+    const descuento = req.body.descuento || 0;
+    const montoFinal = monto - (monto * descuento / 100);
     await pool.query(
-      `INSERT INTO ${pagosTable} (ser_id, tipp_id, pag_monto, pag_fecha) VALUES (?, ?, ?, CURDATE())`,
-      [servicioId || null, tippId, monto || 0]
+      `INSERT INTO ${pagosTable} (ser_id, tipp_id, pag_monto, pag_descuento, pag_monto_final, pag_fecha) VALUES (?, ?, ?, ?, ?, CURDATE())`,
+      [servicioId || null, tippId, monto || 0, descuento, montoFinal]
     );
 
     const usuario = req.headers['x-user-usuario'] || 'cliente';
@@ -549,6 +557,26 @@ app.post('/api/backup', requireRole('admin'), async (req, res) => {
     return res.json({ message: `Backup creado: ${path.basename(archivo)}` });
   } catch (error) {
     return res.status(500).json({ message: 'Error al crear backup. Verifica que mysqldump esté en el PATH.', detail: error.message });
+  }
+});
+
+
+// Calcular descuento según turnos históricos del usuario
+app.get('/api/descuento/:usu_id', async (req, res) => {
+  try {
+    const { usu_id } = req.params;
+    const turnosTable = await findExistingTable(['turnos', 'barberia_turnos']);
+    if (!turnosTable) return res.json({ descuento: 0, totalTurnos: 0 });
+
+    const [rows] = await pool.query(
+      `SELECT COUNT(*) as total FROM ${turnosTable} WHERE usu_id = ?`,
+      [usu_id]
+    );
+    const totalTurnos = rows[0].total;
+    const descuento = totalTurnos >= 3 ? 10 : 0;
+    return res.json({ descuento, totalTurnos });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al calcular descuento.', detail: error.message });
   }
 });
 

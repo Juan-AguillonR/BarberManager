@@ -1,0 +1,7 @@
+[2026-04-08T15:53:14.203Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-04-08T15:54:44.371Z] usuario=gcortes@uniempresarial.edu.co accion=TURNO_CREADO detalle=fecha=2026-04-13 hora=13:57 servicio=1
+[2026-04-08T15:54:47.206Z] usuario=gcortes@uniempresarial.edu.co accion=PAGO_REGISTRADO detalle=metodo=Efectivo monto=2000.00
+[2026-04-08T15:55:43.899Z] usuario=Kiretsu10 accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-04-08T15:59:29.756Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-04-08T15:59:30.902Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-04-08T15:59:31.454Z] usuario=gcortes@uniempresarial.edu.co accion=LOGIN_FALLIDO detalle=intentos=3

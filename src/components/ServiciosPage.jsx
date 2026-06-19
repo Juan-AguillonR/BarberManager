@@ -6,61 +6,65 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import { apiRequest } from '../services/api';
 
-function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado }) {
-  // --- Estados para la creación de Servicios (HEAD) ---
+function ServiciosPage({ servicios: serviciosProp, descuentos = [], user, onServicioCreado }) {
+  // ── Servicio ───────────────────────────────────────────────────────────────
   const [tipo, setTipo] = useState('');
   const [precio, setPrecio] = useState('');
-  
-  // --- Estados para la configuración de Descuentos (9dd650c) ---
+  const [statusServicio, setStatusServicio] = useState({ type: '', message: '' });
+  const [isSavingServicio, setIsSavingServicio] = useState(false);
+  const [serviciosLocales, setServiciosLocales] = useState(null);
+
+  // ── Descuento ──────────────────────────────────────────────────────────────
   const [servicioId, setServicioId] = useState('');
   const [cortesRequeridos, setCortesRequeridos] = useState('');
   const [porcentaje, setPorcentaje] = useState('');
   const [activo, setActivo] = useState(true);
-
-  // --- Estados compartidos ---
-  const [status, setStatus] = useState({ type: '', message: '' });
-  const [isSaving, setIsSaving] = useState(false);
+  const [statusDescuento, setStatusDescuento] = useState({ type: '', message: '' });
+  const [isSavingDescuento, setIsSavingDescuento] = useState(false);
 
   const esAdmin = user?.rol === 'admin';
+  const servicios = serviciosLocales ?? serviciosProp;
 
-  // --- Manejador para crear Servicios (HEAD) ---
-  const handleSubmit = async (event) => {
+  const handleSubmitServicio = async (event) => {
     event.preventDefault();
-    setStatus({ type: '', message: '' });
+    setStatusServicio({ type: '', message: '' });
 
     if (!tipo.trim() || precio === '') {
-      setStatus({ type: 'danger', message: 'Debes indicar nombre y precio del servicio.' });
+      setStatusServicio({ type: 'danger', message: 'Debes indicar nombre y precio del servicio.' });
       return;
     }
 
-    setIsSaving(true);
+    setIsSavingServicio(true);
     try {
       await apiRequest('/api/servicios', {
         method: 'POST',
         body: JSON.stringify({ tipo: tipo.trim(), precio: Number(precio) }),
       }, user);
-      setStatus({ type: 'success', message: 'Servicio registrado correctamente.' });
+
+      const actualizados = await apiRequest('/api/servicios', { method: 'GET' }, user);
+      setServiciosLocales(Array.isArray(actualizados) ? actualizados : actualizados.servicios ?? []);
+
+      setStatusServicio({ type: 'success', message: 'Servicio registrado correctamente.' });
       setTipo('');
       setPrecio('');
       if (onServicioCreado) onServicioCreado();
     } catch (error) {
-      setStatus({ type: 'danger', message: error.message || 'No se pudo registrar el servicio.' });
+      setStatusServicio({ type: 'danger', message: error.message || 'No se pudo registrar el servicio.' });
     } finally {
-      setIsSaving(false);
+      setIsSavingServicio(false);
     }
   };
 
-  // --- Manejador para guardar Descuentos (9dd650c) ---
   const handleGuardarDescuento = async (event) => {
     event.preventDefault();
-    setStatus({ type: '', message: '' });
+    setStatusDescuento({ type: '', message: '' });
 
     if (!servicioId || !cortesRequeridos || !porcentaje) {
-      setStatus({ type: 'danger', message: 'Debes completar servicio, cortes requeridos y porcentaje.' });
+      setStatusDescuento({ type: 'danger', message: 'Debes completar servicio, cortes requeridos y porcentaje.' });
       return;
     }
 
-    setIsSaving(true);
+    setIsSavingDescuento(true);
     try {
       const response = await apiRequest('/api/descuentos', {
         method: 'POST',
@@ -72,16 +76,16 @@ function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado
         }),
       }, user);
 
-      setStatus({ type: 'success', message: response.message || 'Descuento guardado.' });
+      setStatusDescuento({ type: 'success', message: response.message || 'Descuento guardado.' });
       setServicioId('');
       setCortesRequeridos('');
       setPorcentaje('');
       setActivo(true);
       if (onServicioCreado) onServicioCreado();
     } catch (error) {
-      setStatus({ type: 'danger', message: error.message || 'No se pudo guardar el descuento.' });
+      setStatusDescuento({ type: 'danger', message: error.message || 'No se pudo guardar el descuento.' });
     } finally {
-      setIsSaving(false);
+      setIsSavingDescuento(false);
     }
   };
 
@@ -89,13 +93,14 @@ function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado
     <section className="panel-wrap" id="servicios" aria-label="Listado de servicios">
       <h1 className="panel-title">Servicios</h1>
 
+      {/* ── Registrar servicio ── */}
       {esAdmin && (
         <article className="panel-block" data-testid="servicios-form-section">
           <h2>Registrar nuevo servicio</h2>
-          {status.message && (
-            <Alert variant={status.type} data-testid="servicios-alert">{status.message}</Alert>
+          {statusServicio.message && (
+            <Alert variant={statusServicio.type} data-testid="servicios-alert">{statusServicio.message}</Alert>
           )}
-          <Form onSubmit={handleSubmit} data-testid="servicios-form" className="turno-form-grid">
+          <Form onSubmit={handleSubmitServicio} data-testid="servicios-form" className="turno-form-grid">
             <Form.Group>
               <Form.Label>Nombre del servicio</Form.Label>
               <Form.Control
@@ -118,13 +123,14 @@ function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado
                 placeholder="Ej: 25000"
               />
             </Form.Group>
-            <Button type="submit" variant="dark" disabled={isSaving} data-testid="servicio-submit">
-              {isSaving ? 'Guardando...' : 'Guardar servicio'}
+            <Button type="submit" variant="dark" disabled={isSavingServicio} data-testid="servicio-submit">
+              {isSavingServicio ? 'Guardando...' : 'Guardar servicio'}
             </Button>
           </Form>
         </article>
       )}
 
+      {/* ── Tabla de servicios ── */}
       <article className="panel-block">
         <Table striped bordered hover responsive data-testid="servicios-tabla">
           <thead>
@@ -154,39 +160,48 @@ function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado
         </Table>
       </article>
 
+      {/* ── Descuentos (solo admin) ── */}
       {esAdmin && (
         <>
           <article className="panel-block">
             <h2>Configurar descuento por cortes previos</h2>
-            {status.message && <Alert variant={status.type}>{status.message}</Alert>}
+            {statusDescuento.message && (
+              <Alert variant={statusDescuento.type}>{statusDescuento.message}</Alert>
+            )}
             <Form onSubmit={handleGuardarDescuento} className="turno-form-grid">
-              <Form.Select value={servicioId} onChange={(e) => setServicioId(e.target.value)}>
-                <option value="">Selecciona un servicio</option>
-                {servicios.map((servicio) => (
-                  <option key={servicio.id} value={servicio.id}>
-                    {servicio.tipo || `Servicio #${servicio.id}`} {servicio.precio !== undefined ? `- $${servicio.precio}` : ''}
-                  </option>
-                ))}
-              </Form.Select>
-
-              <Form.Control
-                type="number"
-                min="1"
-                value={cortesRequeridos}
-                onChange={(e) => setCortesRequeridos(e.target.value)}
-                placeholder="Cortes previos requeridos"
-              />
-
-              <Form.Control
-                type="number"
-                min="1"
-                max="100"
-                step="0.01"
-                value={porcentaje}
-                onChange={(e) => setPorcentaje(e.target.value)}
-                placeholder="Porcentaje de descuento"
-              />
-
+              <Form.Group>
+                <Form.Label>Servicio</Form.Label>
+                <Form.Select value={servicioId} onChange={(e) => setServicioId(e.target.value)}>
+                  <option value="">Selecciona un servicio</option>
+                  {servicios.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.tipo || `Servicio #${s.id}`}{s.precio !== undefined ? ` - $${s.precio}` : ''}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Cortes previos requeridos</Form.Label>
+                <Form.Control
+                  type="number"
+                  min="1"
+                  value={cortesRequeridos}
+                  onChange={(e) => setCortesRequeridos(e.target.value)}
+                  placeholder="Ej: 5"
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Porcentaje de descuento</Form.Label>
+                <Form.Control
+                  type="number"
+                  min="1"
+                  max="100"
+                  step="0.01"
+                  value={porcentaje}
+                  onChange={(e) => setPorcentaje(e.target.value)}
+                  placeholder="Ej: 10"
+                />
+              </Form.Group>
               <Form.Check
                 type="switch"
                 id="descuento-activo"
@@ -194,9 +209,8 @@ function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado
                 checked={activo}
                 onChange={(e) => setActivo(e.target.checked)}
               />
-
-              <Button type="submit" variant="dark" disabled={isSaving}>
-                {isSaving ? 'Guardando...' : 'Guardar descuento'}
+              <Button type="submit" variant="dark" disabled={isSavingDescuento}>
+                {isSavingDescuento ? 'Guardando...' : 'Guardar descuento'}
               </Button>
             </Form>
           </article>
@@ -225,7 +239,7 @@ function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado
                       <td>{descuento.servicio || `Servicio #${descuento.servicioId}`}</td>
                       <td>{descuento.cortesRequeridos}</td>
                       <td>{descuento.porcentaje}%</td>
-                      <td>{Number(descuento.activo) === 1 ? 'Si' : 'No'}</td>
+                      <td>{Number(descuento.activo) === 1 ? 'Sí' : 'No'}</td>
                     </tr>
                   ))
                 )}

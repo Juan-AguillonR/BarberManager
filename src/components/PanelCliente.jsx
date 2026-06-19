@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';  // agregar useEffect
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -8,20 +8,33 @@ import Badge from 'react-bootstrap/Badge';
 import { apiRequest } from '../services/api';
 import './PanelCliente.css';
 
-function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDatosActualizados }) {
-  // ── Agendar turno ──────────────────────────────────────────────────────────
+function PanelCliente({ turnos = [], tiposPago = [], servicios: serviciosProp = [], user, onDatosActualizados }) {
   const [fecha, setFecha] = useState('');
   const [hora, setHora] = useState('');
   const [servicioSeleccionado, setServicioSeleccionado] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isSaving, setIsSaving] = useState(false);
-
-  // ── Flujo de pago simulado ─────────────────────────────────────────────────
   const [showPagoModal, setShowPagoModal] = useState(false);
   const [metodoPago, setMetodoPago] = useState('');
   const [turnoCreado, setTurnoCreado] = useState(null);
   const [pagoConfirmado, setPagoConfirmado] = useState(false);
   const [resumenPago, setResumenPago] = useState(null);
+
+  // ── Cargar servicios localmente ────────────────────────────────────────────
+  const [servicios, setServicios] = useState(serviciosProp);
+
+  useEffect(() => {
+    const cargarServicios = async () => {
+      try {
+        const data = await apiRequest('/api/servicios', { method: 'GET' }, user);
+        setServicios(Array.isArray(data) ? data : data.servicios ?? []);
+      } catch {
+        setServicios(serviciosProp);
+      }
+    };
+    cargarServicios();
+  }, [user]);
+  // ──────────────────────────────────────────────────────────────────────────
 
   const servicioInfo = servicios.find((s) => String(s.id) === String(servicioSeleccionado));
 

@@ -35,8 +35,8 @@ class TestRF03ReservaTurnos:
         panel = PanelPage(driver, base_url)
         cliente = ClientePage(driver, base_url)
 
-        fecha = (date.today() + timedelta(days=2)).isoformat()
-        hora = f"{10 + int(uuid.uuid4().hex[:2], 16) % 8:02d}:30"
+        fecha = (date.today() + timedelta(days=3)).isoformat()
+        hora = "14:00"
 
         login.open_login()
         login.login(test_users["cliente"]["usuario"], test_users["cliente"]["password"])

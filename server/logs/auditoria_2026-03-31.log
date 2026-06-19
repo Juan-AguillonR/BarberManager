@@ -1,7 +1,0 @@
-[2026-03-31T02:59:11.259Z] usuario=Pablo accion=LOGIN_EXITOSO detalle=rol=cliente
-[2026-03-31T02:59:23.116Z] usuario=Ramirez accion=REGISTRO detalle=rol=cliente
-[2026-03-31T02:59:27.449Z] usuario=Ramirez accion=LOGIN_EXITOSO detalle=rol=cliente
-[2026-03-31T03:33:50.607Z] usuario=Pablo accion=LOGIN_FALLIDO detalle=intentos=1
-[2026-03-31T03:33:58.741Z] usuario=Pablo accion=LOGIN_EXITOSO detalle=rol=admin
-[2026-03-31T03:37:08.422Z] usuario=pablo accion=TURNO_CREADO detalle=fecha=2026-04-25 hora=10:37
-[2026-03-31T03:38:29.263Z] usuario=pablo accion=DESCUENTO_CONFIGURADO detalle=servicio=1 cortes=2 porcentaje=5 activo=1

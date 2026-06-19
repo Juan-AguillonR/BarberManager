@@ -1,19 +1,29 @@
 import { useState } from 'react';
 import './ServiciosPage.css';
-import { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import { apiRequest } from '../services/api';
 
-function ServiciosPage({ servicios, user, onServicioCreado }) {
+function ServiciosPage({ servicios = [], descuentos = [], user, onServicioCreado }) {
+  // --- Estados para la creación de Servicios (HEAD) ---
   const [tipo, setTipo] = useState('');
   const [precio, setPrecio] = useState('');
+  
+  // --- Estados para la configuración de Descuentos (9dd650c) ---
+  const [servicioId, setServicioId] = useState('');
+  const [cortesRequeridos, setCortesRequeridos] = useState('');
+  const [porcentaje, setPorcentaje] = useState('');
+  const [activo, setActivo] = useState(true);
+
+  // --- Estados compartidos ---
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isSaving, setIsSaving] = useState(false);
+
   const esAdmin = user?.rol === 'admin';
 
+  // --- Manejador para crear Servicios (HEAD) ---
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatus({ type: '', message: '' });
@@ -35,6 +45,41 @@ function ServiciosPage({ servicios, user, onServicioCreado }) {
       if (onServicioCreado) onServicioCreado();
     } catch (error) {
       setStatus({ type: 'danger', message: error.message || 'No se pudo registrar el servicio.' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // --- Manejador para guardar Descuentos (9dd650c) ---
+  const handleGuardarDescuento = async (event) => {
+    event.preventDefault();
+    setStatus({ type: '', message: '' });
+
+    if (!servicioId || !cortesRequeridos || !porcentaje) {
+      setStatus({ type: 'danger', message: 'Debes completar servicio, cortes requeridos y porcentaje.' });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await apiRequest('/api/descuentos', {
+        method: 'POST',
+        body: JSON.stringify({
+          servicioId: Number(servicioId),
+          cortesRequeridos: Number(cortesRequeridos),
+          porcentaje: Number(porcentaje),
+          activo,
+        }),
+      }, user);
+
+      setStatus({ type: 'success', message: response.message || 'Descuento guardado.' });
+      setServicioId('');
+      setCortesRequeridos('');
+      setPorcentaje('');
+      setActivo(true);
+      if (onServicioCreado) onServicioCreado();
+    } catch (error) {
+      setStatus({ type: 'danger', message: error.message || 'No se pudo guardar el descuento.' });
     } finally {
       setIsSaving(false);
     }

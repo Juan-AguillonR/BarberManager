@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './ServiciosPage.css';
+import { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -107,6 +108,87 @@ function ServiciosPage({ servicios, user, onServicioCreado }) {
           </tbody>
         </Table>
       </article>
+
+      {esAdmin && (
+        <>
+          <article className="panel-block">
+            <h2>Configurar descuento por cortes previos</h2>
+            {status.message && <Alert variant={status.type}>{status.message}</Alert>}
+            <Form onSubmit={handleGuardarDescuento} className="turno-form-grid">
+              <Form.Select value={servicioId} onChange={(e) => setServicioId(e.target.value)}>
+                <option value="">Selecciona un servicio</option>
+                {servicios.map((servicio) => (
+                  <option key={servicio.id} value={servicio.id}>
+                    {servicio.tipo || `Servicio #${servicio.id}`} {servicio.precio !== undefined ? `- $${servicio.precio}` : ''}
+                  </option>
+                ))}
+              </Form.Select>
+
+              <Form.Control
+                type="number"
+                min="1"
+                value={cortesRequeridos}
+                onChange={(e) => setCortesRequeridos(e.target.value)}
+                placeholder="Cortes previos requeridos"
+              />
+
+              <Form.Control
+                type="number"
+                min="1"
+                max="100"
+                step="0.01"
+                value={porcentaje}
+                onChange={(e) => setPorcentaje(e.target.value)}
+                placeholder="Porcentaje de descuento"
+              />
+
+              <Form.Check
+                type="switch"
+                id="descuento-activo"
+                label="Descuento activo"
+                checked={activo}
+                onChange={(e) => setActivo(e.target.checked)}
+              />
+
+              <Button type="submit" variant="dark" disabled={isSaving}>
+                {isSaving ? 'Guardando...' : 'Guardar descuento'}
+              </Button>
+            </Form>
+          </article>
+
+          <article className="panel-block">
+            <h2>Descuentos configurados</h2>
+            <Table striped bordered hover responsive>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Servicio</th>
+                  <th>Cortes requeridos</th>
+                  <th>Porcentaje</th>
+                  <th>Activo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {descuentos.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>No hay descuentos configurados.</td>
+                  </tr>
+                ) : (
+                  descuentos.map((descuento) => (
+                    <tr key={descuento.id}>
+                      <td>{descuento.id}</td>
+                      <td>{descuento.servicio || `Servicio #${descuento.servicioId}`}</td>
+                      <td>{descuento.cortesRequeridos}</td>
+                      <td>{descuento.porcentaje}%</td>
+                      <td>{Number(descuento.activo) === 1 ? 'Si' : 'No'}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          </article>
+        </>
+      )}
     </section>
   );
 }

@@ -21,20 +21,23 @@ function App() {
   const [pagos, setPagos] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [tiposPago, setTiposPago] = useState([]);
+  const [descuentos, setDescuentos] = useState([]);
 
   const cargarDatos = useCallback(async () => {
     if (!user) return;
     try {
-      const [t, p, s, tp] = await Promise.all([
+      const [t, p, s, tp, d] = await Promise.all([
         apiRequest('/api/turnos', {}, user),
         apiRequest('/api/pagos', {}, user),
         apiRequest('/api/servicios', {}, user),
         apiRequest('/api/tipos-pago', {}, user),
+        apiRequest('/api/descuentos', {}, user),
       ]);
       setTurnos(Array.isArray(t) ? t : []);
       setPagos(Array.isArray(p) ? p : []);
       setServicios(Array.isArray(s) ? s : []);
       setTiposPago(Array.isArray(tp) ? tp : []);
+      setDescuentos(Array.isArray(d) ? d : []);
     } catch { /* silencioso */ }
   }, [user]);
 
@@ -48,7 +51,7 @@ function App() {
   const handleLogout = () => {
     sessionStorage.removeItem('user');
     setUser(null);
-    setTurnos([]); setPagos([]); setServicios([]); setTiposPago([]);
+    setTurnos([]); setPagos([]); setServicios([]); setTiposPago([]); setDescuentos([]);
   };
 
   const puedeVer = (modulo) => {
@@ -72,11 +75,11 @@ function App() {
         />
         <Route path="/pagos" element={user && puedeVer('pagos') ? <PagosPage pagos={pagos} /> : <Navigate to="/" />} />
         <Route path="/servicios" element={user && puedeVer('servicios')
-          ? <ServiciosPage servicios={servicios} user={user} onServicioCreado={cargarDatos} />
+          ? <ServiciosPage servicios={servicios} descuentos={descuentos} user={user} onServicioCreado={cargarDatos} />
           : <Navigate to="/" />}
         />
         <Route path="/cliente" element={user && puedeVer('cliente')
-          ? <PanelCliente turnos={turnos} tiposPago={tiposPago} servicios={servicios} user={user} onDatosActualizados={cargarDatos} />
+          ? <PanelCliente turnos={turnos} tiposPago={tiposPago} servicios={servicios} descuentos={descuentos} user={user} onDatosActualizados={cargarDatos} />
           : <Navigate to="/" />}
         />
         <Route path="*" element={<Navigate to="/" />} />

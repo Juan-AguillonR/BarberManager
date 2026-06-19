@@ -163,6 +163,19 @@ async function ensureTables() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS descuentos_servicio (
+      des_id INT AUTO_INCREMENT PRIMARY KEY,
+      ser_id INT NOT NULL,
+      des_cortes_requeridos INT NOT NULL,
+      des_porcentaje DECIMAL(5,2) NOT NULL,
+      des_activo TINYINT(1) NOT NULL DEFAULT 1,
+      creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uk_descuento_servicio (ser_id),
+      FOREIGN KEY (ser_id) REFERENCES servicios(ser_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
   // Insertar tipos de pago base si no existen
   const [existing] = await pool.query('SELECT COUNT(*) as total FROM tipos_pagos');
   if (existing[0].total === 0) {
@@ -304,6 +317,91 @@ app.get('/api/tipos-pago', async (_req, res) => {
     return res.json(rows);
   } catch (error) {
     return res.status(500).json({ message: 'Error al listar tipos de pago.', detail: error.message });
+  }
+});
+
+app.get('/api/descuentos', async (_req, res) => {
+  try {
+    const descuentosTable = await findExistingTable(['descuentos_servicio']);
+    if (!descuentosTable) return res.json([]);
+
+    const serviciosTable = await findExistingTable(['servicios', 'barberia_servicios']);
+    const tiposServiciosTable = await findExistingTable(['tipos_servicios', 'barberia_tipos_servicios']);
+
+    const serJoin = serviciosTable
+      ? `LEFT JOIN ${serviciosTable} s ON s.ser_id = d.ser_id`
+      : '';
+    const tservJoin = serviciosTable && tiposServiciosTable
+      ? `LEFT JOIN ${tiposServiciosTable} ts ON ts.tips_id = s.tips_id`
+      : '';
+    const servicioSelect = serviciosTable && tiposServiciosTable
+      ? 'ts.tips_nombre_servicio'
+      : 'CONCAT("Servicio #", d.ser_id)';
+
+    const [rows] = await pool.query(
+      `SELECT d.des_id AS id,
+              d.ser_id AS servicioId,
+              ${servicioSelect} AS servicio,
+              d.des_cortes_requeridos AS cortesRequeridos,
+              d.des_porcentaje AS porcentaje,
+              d.des_activo AS activo
+       FROM ${descuentosTable} d ${serJoin} ${tservJoin}
+       ORDER BY d.des_id DESC`
+    );
+
+    return res.json(rows);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al listar descuentos.', detail: error.message });
+  }
+});
+
+app.post('/api/descuentos', requireRole('admin'), async (req, res) => {
+  try {
+    const descuentosTable = await findExistingTable(['descuentos_servicio']);
+    const serviciosTable = await findExistingTable(['servicios', 'barberia_servicios']);
+    if (!descuentosTable || !serviciosTable)
+      return res.status(404).json({ message: 'No se encontraron las tablas para descuentos.' });
+
+    const { servicioId, cortesRequeridos, porcentaje, activo = true } = req.body;
+    if (!servicioId || cortesRequeridos === undefined || porcentaje === undefined) {
+      return res.status(400).json({
+        message: 'Servicio, cortes requeridos y porcentaje son obligatorios.'
+      });
+    }
+
+    const cortes = Number(cortesRequeridos);
+    const pct = Number(porcentaje);
+    if (!Number.isInteger(cortes) || cortes < 1) {
+      return res.status(400).json({ message: 'Los cortes requeridos deben ser un entero mayor o igual a 1.' });
+    }
+    if (!Number.isFinite(pct) || pct <= 0 || pct > 100) {
+      return res.status(400).json({ message: 'El porcentaje debe ser mayor a 0 y menor o igual a 100.' });
+    }
+
+    const [servicio] = await pool.query(`SELECT ser_id FROM ${serviciosTable} WHERE ser_id = ? LIMIT 1`, [servicioId]);
+    if (servicio.length === 0) {
+      return res.status(404).json({ message: 'El servicio indicado no existe.' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO ${descuentosTable} (ser_id, des_cortes_requeridos, des_porcentaje, des_activo)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         des_cortes_requeridos = VALUES(des_cortes_requeridos),
+         des_porcentaje = VALUES(des_porcentaje),
+         des_activo = VALUES(des_activo)`,
+      [Number(servicioId), cortes, pct, activo ? 1 : 0]
+    );
+
+    const usuario = req.headers['x-user-usuario'] || 'admin';
+    writeLog(usuario, 'DESCUENTO_CONFIGURADO', `servicio=${servicioId} cortes=${cortes} porcentaje=${pct} activo=${activo ? 1 : 0}`);
+
+    return res.status(201).json({
+      message: 'Descuento configurado correctamente.',
+      id: result.insertId || null,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al guardar descuento.', detail: error.message });
   }
 });
 
@@ -485,9 +583,11 @@ app.post('/api/pagos', async (req, res) => {
   try {
     const pagosTable = await findExistingTable(['pagos', 'barberia_pagos']);
     const tiposPagoTable = await findExistingTable(['tipos_pagos', 'barberia_tipos_pagos']);
+    const descuentosTable = await findExistingTable(['descuentos_servicio']);
+    const turnosTable = await findExistingTable(['turnos', 'barberia_turnos']);
     if (!pagosTable) return res.status(404).json({ message: 'No existe la tabla de pagos.' });
 
-    const { metodoPago, monto, turnoId } = req.body;
+    const { metodoPago, monto, turnoId, servicioId, usuarioId } = req.body;
 
     let tippId = null;
     if (tiposPagoTable && metodoPago) {
@@ -497,15 +597,81 @@ app.post('/api/pagos', async (req, res) => {
       if (tp.length > 0) tippId = tp[0].tipp_id;
     }
 
+    const montoBase = Number(monto) || 0;
+    let montoFinal = montoBase;
+    let descuentoAplicado = 0;
+    let cortesPrevios = 0;
+
+    const resolvedServicioId = servicioId ? Number(servicioId) : null;
+    let resolvedUsuarioId = usuarioId ? Number(usuarioId) : null;
+    let fechaReferencia = null;
+    let horaReferencia = null;
+
+    if (turnosTable && turnoId) {
+      const [turnoRows] = await pool.query(
+        `SELECT usu_id, tur_fecha, tur_hora FROM ${turnosTable} WHERE tur_id = ? LIMIT 1`,
+        [turnoId]
+      );
+      if (turnoRows.length > 0) {
+        resolvedUsuarioId = resolvedUsuarioId || turnoRows[0].usu_id || null;
+        fechaReferencia = turnoRows[0].tur_fecha || null;
+        horaReferencia = turnoRows[0].tur_hora || null;
+      }
+    }
+
+    if (descuentosTable && turnosTable && resolvedServicioId && resolvedUsuarioId) {
+      const [cortesRows] = await pool.query(
+        `SELECT COUNT(*) AS total
+         FROM ${turnosTable}
+         WHERE usu_id = ?
+           AND (
+             tur_fecha < COALESCE(?, CURDATE()) OR
+             (tur_fecha = COALESCE(?, CURDATE()) AND tur_hora < COALESCE(?, CURTIME()))
+           )`,
+        [resolvedUsuarioId, fechaReferencia, fechaReferencia, horaReferencia]
+      );
+      cortesPrevios = Number(cortesRows[0]?.total || 0);
+
+      const [descuentoRows] = await pool.query(
+        `SELECT des_porcentaje
+         FROM ${descuentosTable}
+         WHERE ser_id = ?
+           AND des_activo = 1
+           AND des_cortes_requeridos <= ?
+         ORDER BY des_cortes_requeridos DESC
+         LIMIT 1`,
+        [resolvedServicioId, cortesPrevios]
+      );
+
+      if (descuentoRows.length > 0) {
+        const porcentaje = Number(descuentoRows[0].des_porcentaje || 0);
+        descuentoAplicado = Number(((montoBase * porcentaje) / 100).toFixed(2));
+        montoFinal = Number((montoBase - descuentoAplicado).toFixed(2));
+      }
+    }
+
     await pool.query(
-      `INSERT INTO ${pagosTable} (tipp_id, pag_monto, pag_fecha) VALUES (?, ?, CURDATE())`,
-      [tippId, monto || 0]
+      `INSERT INTO ${pagosTable} (ser_id, tipp_id, pag_monto, pag_fecha) VALUES (?, ?, ?, CURDATE())`,
+      [resolvedServicioId, tippId, montoFinal]
     );
 
     const usuario = req.headers['x-user-usuario'] || 'cliente';
-    writeLog(usuario, 'PAGO_REGISTRADO', `metodo=${metodoPago} monto=${monto} turno=${turnoId}`);
+    writeLog(
+      usuario,
+      'PAGO_REGISTRADO',
+      `metodo=${metodoPago} montoBase=${montoBase} descuento=${descuentoAplicado} montoFinal=${montoFinal} turno=${turnoId} servicio=${resolvedServicioId} cortesPrevios=${cortesPrevios}`
+    );
 
-    return res.status(201).json({ message: 'Pago registrado correctamente.' });
+    return res.status(201).json({
+      message: 'Pago registrado correctamente.',
+      pago: {
+        metodoPago,
+        montoBase,
+        descuentoAplicado,
+        montoFinal,
+        cortesPrevios,
+      }
+    });
   } catch (error) {
     return res.status(500).json({ message: 'Error al registrar pago.', detail: error.message });
   }

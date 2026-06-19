@@ -1,0 +1,7 @@
+pytest>=8.0
+selenium>=4.15
+webdriver-manager>=4.0
+requests>=2.31
+pymysql>=1.1
+python-dotenv>=1.0
+pytest-html>=4.0

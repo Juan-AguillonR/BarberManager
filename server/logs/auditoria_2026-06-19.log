@@ -1,0 +1,186 @@
+[2026-06-19T00:01:19.315Z] usuario=rf04_lockout_e65f65c7 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:01:19.736Z] usuario=rf04_lockout_e65f65c7 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:01:20.173Z] usuario=rf04_lockout_e65f65c7 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:01:20.601Z] usuario=rf04_lockout_e65f65c7 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:04:13.485Z] usuario=rf04_lockout_8a0e1e97 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:04:13.902Z] usuario=rf04_lockout_8a0e1e97 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:04:14.338Z] usuario=rf04_lockout_8a0e1e97 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:04:14.757Z] usuario=rf04_lockout_8a0e1e97 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:04:15.176Z] usuario=rf04_lockout_8a0e1e97 accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:04:15.602Z] usuario=rf04_lockout_8a0e1e97 accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:04:15.606Z] usuario=rf04_lockout_8a0e1e97 accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:06:24.452Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:06:24.880Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:06:28.856Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:06:29.408Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 ab55d9 precio=35000
+[2026-06-19T00:07:21.223Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:07:21.637Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:07:22.071Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:07:22.489Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:07:22.929Z] usuario=rf04_lockout_f56843b3 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:07:23.368Z] usuario=rf04_lockout_f56843b3 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:07:23.787Z] usuario=rf04_lockout_f56843b3 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:07:24.200Z] usuario=rf04_lockout_f56843b3 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:07:24.632Z] usuario=rf04_lockout_f56843b3 accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:07:25.060Z] usuario=rf04_lockout_f56843b3 accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:07:25.064Z] usuario=rf04_lockout_f56843b3 accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:07:25.076Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 bd5b27 precio=42000
+[2026-06-19T00:07:25.091Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET 4c1adf precio=51000
+[2026-06-19T00:07:25.168Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=12:15
+[2026-06-19T00:07:31.030Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:07:37.093Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:07:47.967Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:07:48.548Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 19aaa2 precio=35000
+[2026-06-19T00:07:53.437Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 4b36ce precio=28000
+[2026-06-19T00:07:54.328Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:07:55.164Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=16:30
+[2026-06-19T00:16:07.595Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:16:08.032Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:16:57.219Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:16:57.638Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:16:57.679Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=17:15
+[2026-06-19T00:19:56.599Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:19:57.016Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:19:57.431Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:19:57.857Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:19:58.303Z] usuario=rf04_lockout_ba15a2b3 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:19:58.719Z] usuario=rf04_lockout_ba15a2b3 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:19:59.151Z] usuario=rf04_lockout_ba15a2b3 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:19:59.565Z] usuario=rf04_lockout_ba15a2b3 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:19:59.978Z] usuario=rf04_lockout_ba15a2b3 accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:20:00.406Z] usuario=rf04_lockout_ba15a2b3 accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:20:00.421Z] usuario=rf04_lockout_ba15a2b3 accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:20:00.444Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 a210b1 precio=42000
+[2026-06-19T00:20:00.475Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET 25467c precio=51000
+[2026-06-19T00:20:00.569Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=13:15
+[2026-06-19T00:20:06.489Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:20:12.107Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:20:23.283Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:20:23.845Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 2c90b8 precio=35000
+[2026-06-19T00:20:28.814Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 ed2988 precio=28000
+[2026-06-19T00:20:29.730Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:20:30.536Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=14:30
+[2026-06-19T00:22:06.203Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:22:06.645Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:22:07.067Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:22:07.491Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:22:07.915Z] usuario=rf04_lockout_29953478 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:22:08.342Z] usuario=rf04_lockout_29953478 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:22:08.767Z] usuario=rf04_lockout_29953478 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:22:09.212Z] usuario=rf04_lockout_29953478 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:22:09.635Z] usuario=rf04_lockout_29953478 accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:22:10.053Z] usuario=rf04_lockout_29953478 accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:22:10.083Z] usuario=rf04_lockout_29953478 accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:22:10.098Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 cd00de precio=42000
+[2026-06-19T00:22:10.111Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET ae89fa precio=51000
+[2026-06-19T00:22:10.172Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=15:15
+[2026-06-19T00:22:16.116Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:22:22.191Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:22:33.223Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:22:33.803Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 b43b25 precio=35000
+[2026-06-19T00:22:38.799Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 0941fb precio=28000
+[2026-06-19T00:22:39.672Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:22:40.542Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=16:30
+[2026-06-19T00:22:57.083Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:22:57.513Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:22:57.944Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:22:58.368Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:22:58.808Z] usuario=rf04_lockout_6866d90f accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:22:59.247Z] usuario=rf04_lockout_6866d90f accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:22:59.687Z] usuario=rf04_lockout_6866d90f accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:23:00.099Z] usuario=rf04_lockout_6866d90f accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:23:00.524Z] usuario=rf04_lockout_6866d90f accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:23:00.951Z] usuario=rf04_lockout_6866d90f accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:23:00.955Z] usuario=rf04_lockout_6866d90f accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:23:00.979Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 e71dc0 precio=42000
+[2026-06-19T00:23:01.011Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET 5eb151 precio=51000
+[2026-06-19T00:23:01.105Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=15:15
+[2026-06-19T00:23:06.794Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:23:12.680Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:23:23.447Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:23:24.046Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 32aca1 precio=35000
+[2026-06-19T00:23:29.067Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 094e49 precio=28000
+[2026-06-19T00:23:29.896Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:23:30.758Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=17:30
+[2026-06-19T00:35:11.085Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:35:11.501Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:35:15.900Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:35:16.507Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 951a9b precio=35000
+[2026-06-19T00:36:23.685Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:36:24.126Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:36:24.551Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:36:24.999Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:36:25.429Z] usuario=rf04_lockout_f745082c accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:36:25.843Z] usuario=rf04_lockout_f745082c accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:36:26.282Z] usuario=rf04_lockout_f745082c accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:36:26.707Z] usuario=rf04_lockout_f745082c accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:36:27.137Z] usuario=rf04_lockout_f745082c accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:36:27.561Z] usuario=rf04_lockout_f745082c accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:36:27.566Z] usuario=rf04_lockout_f745082c accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:36:27.582Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 4d6a98 precio=42000
+[2026-06-19T00:36:27.596Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET 6d0a33 precio=51000
+[2026-06-19T00:36:27.653Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=17:15
+[2026-06-19T00:36:33.395Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:36:39.314Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:36:50.054Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:36:50.617Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 a67996 precio=35000
+[2026-06-19T00:36:55.460Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 5798ef precio=28000
+[2026-06-19T00:36:56.288Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:36:57.168Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=13:30
+[2026-06-19T00:44:51.089Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:44:51.504Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:44:51.941Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:44:52.382Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:44:52.825Z] usuario=rf04_lockout_03a70863 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:44:53.240Z] usuario=rf04_lockout_03a70863 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:44:53.652Z] usuario=rf04_lockout_03a70863 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:44:54.087Z] usuario=rf04_lockout_03a70863 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:44:54.515Z] usuario=rf04_lockout_03a70863 accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:44:54.946Z] usuario=rf04_lockout_03a70863 accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:44:54.973Z] usuario=rf04_lockout_03a70863 accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:44:55.011Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 904418 precio=42000
+[2026-06-19T00:44:55.025Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET ce8df8 precio=51000
+[2026-06-19T00:44:55.121Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=12:15
+[2026-06-19T00:45:00.858Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:45:07.040Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:45:17.535Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:45:18.180Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 337763 precio=35000
+[2026-06-19T00:45:23.378Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 2b0e7b precio=28000
+[2026-06-19T00:45:24.318Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:45:25.426Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=16:30
+[2026-06-19T00:47:07.939Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:47:08.352Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:47:12.123Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:47:17.950Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:47:33.330Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:47:33.763Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:47:34.192Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:47:34.635Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:47:35.085Z] usuario=rf04_lockout_df7614c3 accion=REGISTRO detalle=rol=cliente
+[2026-06-19T00:47:35.504Z] usuario=rf04_lockout_df7614c3 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:47:35.920Z] usuario=rf04_lockout_df7614c3 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-19T00:47:36.362Z] usuario=rf04_lockout_df7614c3 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-19T00:47:36.801Z] usuario=rf04_lockout_df7614c3 accion=LOGIN_FALLIDO detalle=intentos=4
+[2026-06-19T00:47:37.215Z] usuario=rf04_lockout_df7614c3 accion=LOGIN_FALLIDO detalle=intentos=5
+[2026-06-19T00:47:37.219Z] usuario=rf04_lockout_df7614c3 accion=LOGIN_BLOQUEADO detalle=Demasiados intentos fallidos
+[2026-06-19T00:47:37.231Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 af7383 precio=42000
+[2026-06-19T00:47:37.264Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET d7262b precio=51000
+[2026-06-19T00:47:37.335Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=17:15
+[2026-06-19T00:49:34.102Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:49:34.534Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:49:38.356Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:49:44.356Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T00:49:55.345Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T00:49:56.059Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 64a468 precio=35000
+[2026-06-19T00:50:01.072Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 9e0bdb precio=28000
+[2026-06-19T00:50:01.999Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T00:50:03.120Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=15:30
+[2026-06-19T01:02:57.357Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T01:02:57.797Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T01:03:02.860Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T01:03:13.475Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-19T01:03:28.236Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-19T01:03:31.873Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 a5bc2f precio=35000
+[2026-06-19T01:03:39.083Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 b1c82a precio=28000
+[2026-06-19T01:03:39.988Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-19T01:03:44.218Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=14:30

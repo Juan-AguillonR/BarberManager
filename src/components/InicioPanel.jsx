@@ -42,9 +42,9 @@ function InicioPanel({ user }) {
   };
 
   return (
-    <section className="home-wrap" id="inicio" aria-label="Panel de control">
+    <section className="home-wrap" id="inicio" aria-label="Panel de control" data-testid="panel-principal">
       <div className="home-header">
-        <h1 className="home-title">Panel de Control</h1>
+        <h1 className="home-title" data-testid="panel-titulo">Panel de Control</h1>
         <Badge bg={ROL_COLOR[user?.rol] || 'secondary'} className="home-badge">
           {user?.rol?.toUpperCase()}
         </Badge>

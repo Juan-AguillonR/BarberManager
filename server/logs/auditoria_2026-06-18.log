@@ -1,0 +1,25 @@
+[2026-06-18T23:45:36.869Z] usuario=admin_test accion=REGISTRO detalle=rol=cliente
+[2026-06-18T23:45:37.289Z] usuario=cliente_test accion=REGISTRO detalle=rol=cliente
+[2026-06-18T23:45:37.781Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-18T23:45:38.228Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-18T23:45:38.645Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-18T23:45:39.075Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-18T23:45:39.521Z] usuario=rf04_lockout_6ff18845 accion=REGISTRO detalle=rol=cliente
+[2026-06-18T23:45:39.935Z] usuario=rf04_lockout_6ff18845 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-18T23:45:40.354Z] usuario=rf04_lockout_6ff18845 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-18T23:45:40.769Z] usuario=rf04_lockout_6ff18845 accion=LOGIN_FALLIDO detalle=intentos=3
+[2026-06-18T23:45:40.917Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 5a395d precio=42000
+[2026-06-18T23:45:40.929Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF05 GET 6d7b32 precio=51000
+[2026-06-18T23:45:40.997Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=2026-06-21 hora=14:15
+[2026-06-18T23:45:52.208Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-18T23:45:58.631Z] usuario=cliente_test accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-18T23:46:09.789Z] usuario=admin_test accion=LOGIN_EXITOSO detalle=rol=admin
+[2026-06-18T23:46:10.478Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Corte RF02 da7287 precio=35000
+[2026-06-18T23:46:15.418Z] usuario=admin_test accion=SERVICIO_CREADO detalle=tipo=Servicio RF03 ee8dae precio=28000
+[2026-06-18T23:46:16.382Z] usuario=cliente_test accion=LOGIN_EXITOSO detalle=rol=cliente
+[2026-06-18T23:46:17.331Z] usuario=cliente_test accion=TURNO_CREADO detalle=fecha=60620-02-20 hora=15:30
+[2026-06-18T23:49:59.799Z] usuario=rf04_lockout_xxx accion=LOGIN_FALLIDO detalle=Usuario no encontrado
+[2026-06-18T23:55:03.082Z] usuario=rf04_lockout_70f41657 accion=REGISTRO detalle=rol=cliente
+[2026-06-18T23:55:03.522Z] usuario=rf04_lockout_70f41657 accion=LOGIN_FALLIDO detalle=intentos=1
+[2026-06-18T23:55:03.950Z] usuario=rf04_lockout_70f41657 accion=LOGIN_FALLIDO detalle=intentos=2
+[2026-06-18T23:55:04.365Z] usuario=rf04_lockout_70f41657 accion=LOGIN_FALLIDO detalle=intentos=3

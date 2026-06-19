@@ -103,3 +103,127 @@ Esta sección está disponible aquí: [https://facebook.github.io/create-react-a
 ### `npm run build` falla al minificar
 
 Esta sección está disponible aquí: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+# Pruebas Automatizadas
+
+El proyecto incluye pruebas automatizadas para validar los requerimientos funcionales utilizando **PyTest**, **Selenium**, **Requests** y **MySQL**.
+
+## Estructura de Pruebas
+
+```text
+tests/
+│
+├── api/
+│   ├── test_rf04_auth.py
+│   ├── test_rf05_servicios.py
+│   └── test_rf06_turnos.py
+│
+├── e2e/
+│   ├── test_rf01_login.py
+│   ├── test_rf02_servicios_admin.py
+│   ├── test_rf03_reserva_turnos.py
+│   └── pages/
+│
+├── helpers/
+│   ├── db.py
+│   └── users.py
+│
+├── conftest.py
+└── pytest.ini
+```
+
+## Organización
+
+| `api/` Contiene pruebas de backend que validan directamente los endpoints mediante peticiones HTTP.                                                        
+| `e2e/` Contiene pruebas End-to-End con Selenium que simulan el comportamiento de un usuario real en el navegador.                                          
+| `e2e/pages/` Implementa el patrón Page Object Model (POM), centralizando acciones y elementos de cada pantalla para reutilizarlos entre pruebas.                 
+| `helpers/` Funciones auxiliares para acceso a base de datos y gestión de usuarios de prueba.                                                                   
+| `conftest.py` Archivo de configuración compartida de PyTest. Define fixtures reutilizables como navegador, usuarios de prueba, URLs y cabeceras de autenticación. 
+| `pytest.ini`  Configuración global de PyTest. Define marcadores, ubicación de los tests y reglas de descubrimiento.                                               
+
+## Flujo de Ejecución
+
+Las pruebas de API validan directamente la lógica del backend:
+
+```text
+PyTest
+   ↓
+Requests
+   ↓
+API Express
+   ↓
+MySQL
+```
+
+Las pruebas End-to-End validan el funcionamiento completo del sistema:
+
+```text
+PyTest
+   ↓
+Selenium
+   ↓
+Frontend React
+   ↓
+API Express
+   ↓
+MySQL
+```
+
+## Ejecución de Pruebas
+
+Instalar dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+Ejecutar todas las pruebas:
+
+```bash
+pytest
+```
+
+Ejecutar únicamente pruebas de API:
+
+```bash
+pytest -m api
+```
+
+Ejecutar únicamente pruebas End-to-End:
+
+```bash
+pytest -m e2e
+```
+
+Ejecutar un requerimiento específico:
+
+```bash
+pytest -m rf01
+pytest -m rf02
+pytest -m rf03
+pytest -m rf04
+pytest -m rf05
+pytest -m rf06
+```
+
+## Requisitos Previos
+
+Antes de ejecutar las pruebas es necesario:
+
+1. Tener MySQL en ejecución.
+2. Tener creada la base de datos `barberia`.
+3. Configurar correctamente el archivo `.env`.
+4. Levantar frontend y backend:
+
+```bash
+npm run dev
+```
+
+URLs utilizadas durante las pruebas:
+
+```text
+Frontend: http://localhost:3000
+Backend:  http://localhost:4000
+```
+
+Las pruebas E2E utilizan ChromeDriver administrado automáticamente mediante `webdriver-manager`, por lo que no es necesario instalarlo manualmente.

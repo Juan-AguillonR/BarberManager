@@ -27,6 +27,9 @@
     "dev": "concurrently \"npm run server\" \"npm start\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:api": "cd tests && pytest -m api",
+    "test:e2e": "cd tests && pytest -m e2e",
+    "test:functional": "cd tests && pytest",
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:4000",

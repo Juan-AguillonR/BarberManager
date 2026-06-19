@@ -83,12 +83,16 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
       {/* ── Agendar turno ── */}
       <article className="panel-block">
         <h2>Agendar nuevo turno</h2>
-        {status.message && <Alert variant={status.type} onClose={() => setStatus({ type: '', message: '' })} dismissible>{status.message}</Alert>}
+        {status.message && (
+          <Alert variant={status.type} data-testid="turno-status" onClose={() => setStatus({ type: '', message: '' })} dismissible>
+            {status.message}
+          </Alert>
+        )}
 
-        <Form onSubmit={handleAgendarSubmit} className="turno-form-grid">
+        <Form onSubmit={handleAgendarSubmit} className="turno-form-grid" data-testid="turno-form">
           <Form.Group>
             <Form.Label>Servicio (opcional)</Form.Label>
-            <Form.Select value={servicioSeleccionado} onChange={(e) => setServicioSeleccionado(e.target.value)}>
+            <Form.Select data-testid="turno-servicio" value={servicioSeleccionado} onChange={(e) => setServicioSeleccionado(e.target.value)}>
               <option value="">Selecciona un servicio</option>
               {servicios.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -100,15 +104,15 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
 
           <Form.Group>
             <Form.Label>Fecha</Form.Label>
-            <Form.Control type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} min={new Date().toISOString().split('T')[0]} />
+            <Form.Control type="date" data-testid="turno-fecha" value={fecha} onChange={(e) => setFecha(e.target.value)} min={new Date().toISOString().split('T')[0]} />
           </Form.Group>
 
           <Form.Group>
             <Form.Label>Hora</Form.Label>
-            <Form.Control type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
+            <Form.Control type="time" data-testid="turno-hora" value={hora} onChange={(e) => setHora(e.target.value)} />
           </Form.Group>
 
-          <Button type="submit" variant="dark" disabled={isSaving} className="mt-auto">
+          <Button type="submit" variant="dark" disabled={isSaving} className="mt-auto" data-testid="turno-submit">
             {isSaving ? 'Agendando...' : 'Agendar turno'}
           </Button>
         </Form>
@@ -226,7 +230,7 @@ function PanelCliente({ turnos = [], tiposPago = [], servicios = [], user, onDat
         </Modal.Body>
         {!pagoConfirmado && (
           <Modal.Footer>
-            <Button variant="outline-secondary" onClick={handleSaltarPago}>Pagar después</Button>
+            <Button variant="outline-secondary" onClick={handleSaltarPago} data-testid="pago-saltar">Pagar después</Button>
             <Button variant="success" onClick={handleConfirmarPago} disabled={!metodoPago}>
               Confirmar pago
             </Button>

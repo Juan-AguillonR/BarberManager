@@ -15,7 +15,7 @@ const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
 const loginAttempts = {};
 const BLOCK_AFTER = 5;
 const BLOCK_MINUTES = 15;
-const CAPTCHA_AFTER = 3;
+// const CAPTCHA_AFTER = 3;
 
 function getAttemptInfo(usuario) {
   if (!loginAttempts[usuario]) loginAttempts[usuario] = { count: 0, blockedUntil: null };
@@ -240,11 +240,11 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const info = getAttemptInfo(usuario);
-    const needsCaptcha = info.count >= CAPTCHA_AFTER;
+    // const needsCaptcha = info.count >= CAPTCHA_AFTER;
 
-    if (needsCaptcha && !captchaValid) {
-      return res.status(400).json({ message: 'Debes completar el CAPTCHA.', needsCaptcha: true });
-    }
+    // if (needsCaptcha && !captchaValid) {
+    //   return res.status(400).json({ message: 'Debes completar el CAPTCHA.', needsCaptcha: true });
+    // }
 
     const [rows] = await pool.query(
       'SELECT id, usuario, password_hash, rol, usu_id FROM usuarios_app WHERE usuario = ? LIMIT 1',
@@ -269,8 +269,7 @@ app.post('/api/auth/login', async (req, res) => {
       const restantes = BLOCK_AFTER - getAttemptInfo(usuario).count;
       return res.status(401).json({
         message: `Credenciales inválidas. Te quedan ${restantes} intento(s).`,
-        intentosRestantes: restantes,
-        needsCaptcha: getAttemptInfo(usuario).count >= CAPTCHA_AFTER
+        intentosRestantes: restantes
       });
     }
 

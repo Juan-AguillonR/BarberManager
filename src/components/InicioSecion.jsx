@@ -120,12 +120,12 @@ const InicioSecion = ({ onLogin }) => {
   };
 
   return (
-    <section className="auth-wrap" id="inicio" aria-label="Acceso de usuarios">
+    <section className="auth-wrap" id="inicio" aria-label="Acceso de usuarios" data-testid="login-page">
       <article className="auth-card">
         <div className="auth-logo">✂️</div>
-        <h1 className="auth-title">{isRegisterMode ? 'Crear cuenta' : 'Iniciar sesión'}</h1>
+        <h1 className="auth-title" data-testid="login-title">{isRegisterMode ? 'Crear cuenta' : 'Iniciar sesión'}</h1>
 
-        {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+        {errorMessage && <Alert variant="danger" data-testid="login-error">{errorMessage}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
         {intentosRestantes !== null && !isBlocked && (
           <Alert variant="warning">Intentos restantes: {intentosRestantes}</Alert>
@@ -134,12 +134,13 @@ const InicioSecion = ({ onLogin }) => {
         {isBlocked ? (
           <p className="text-center text-muted">Tu cuenta está bloqueada temporalmente. Intenta en 15 minutos.</p>
         ) : (
-          <Form onSubmit={handleAuthSubmit}>
+          <Form onSubmit={handleAuthSubmit} data-testid="login-form">
             <Form.Group className="mb-3" controlId="usuarioInput">
               <Form.Label>Usuario</Form.Label>
               <Form.Control
                 type="text"
                 autoComplete="username"
+                data-testid="login-usuario"
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
               />
@@ -150,6 +151,7 @@ const InicioSecion = ({ onLogin }) => {
               <Form.Control
                 type="password"
                 autoComplete={isRegisterMode ? 'new-password' : 'current-password'}
+                data-testid="login-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -163,7 +165,7 @@ const InicioSecion = ({ onLogin }) => {
               <CaptchaWidget onVerify={setCaptchaValid} />
             )}
 
-            <Button type="submit" className="w-100 mt-2" variant={isRegisterMode ? 'success' : 'primary'} disabled={isSubmitting}>
+            <Button type="submit" className="w-100 mt-2" variant={isRegisterMode ? 'success' : 'primary'} disabled={isSubmitting} data-testid="login-submit">
               {isSubmitting ? 'Procesando...' : isRegisterMode ? 'Registrar' : 'Entrar'}
             </Button>
           </Form>
